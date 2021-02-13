@@ -3,7 +3,7 @@ using UnityEngine;
 using WebSocketSharp;
 using WebSocketSharp.Server;
 
-namespace Player
+namespace Player.PhoneConnection
 {
     public class PhoneSocketBehavior : WebSocketBehavior
     {
