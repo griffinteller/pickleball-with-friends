@@ -1,6 +1,6 @@
 ﻿using System.Net;
 
-namespace Player
+namespace Player.PhoneConnection
 {
     public static class IPManager
     {

@@ -1,7 +1,6 @@
-﻿using System;
-using UnityEngine;
+﻿using UnityEngine;
 
-namespace Player
+namespace Player.PhoneConnection
 {
     public class RotationSync : MonoBehaviour
     {

@@ -1,9 +1,7 @@
-﻿using System;
-using System.Security.Cryptography.X509Certificates;
-using UnityEngine;
+﻿using UnityEngine;
 using WebSocketSharp.Server;
 
-namespace Player
+namespace Player.PhoneConnection
 {
     public class PhoneStateServer : MonoBehaviour
     {
