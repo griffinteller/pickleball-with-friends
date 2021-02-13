@@ -1,4 +1,5 @@
 using Photon.Pun;
+using Photon.Realtime;
 using TMPro;
 
 namespace Player.Networking
@@ -6,7 +7,7 @@ namespace Player.Networking
     public class JoinRandom : MonoBehaviourPunCallbacks
     {
         public TMP_Text infoText;
-        public int players = 2;
+        public byte players = 2;
         public string matchSceneName;
 
         public void Start()
@@ -21,13 +22,28 @@ namespace Player.Networking
         public override void OnConnectedToMaster()
         {
             infoText.text = "Finding match...";
-            PhotonNetwork.NetworkingClient.OpJoinRandomOrCreateRoom(null, null);
+            PhotonNetwork.JoinRandomRoom();
         }
 
         public override void OnJoinedRoom()
         {
             infoText.text = "Waiting for players...";
+            OnPlayerEnteredRoom(PhotonNetwork.LocalPlayer);
+        }
 
+        public override void OnJoinRandomFailed(short returnCode, string message)
+        {
+            RoomOptions options = new RoomOptions
+            {
+                IsOpen = true,
+                IsVisible = true,
+                MaxPlayers = players
+            };
+            PhotonNetwork.CreateRoom(null, options);
+        }
+
+        public override void OnPlayerEnteredRoom(Photon.Realtime.Player newPlayer)
+        {
             if (PhotonNetwork.IsMasterClient && PhotonNetwork.CurrentRoom.PlayerCount >= players)
                 PhotonNetwork.LoadLevel(matchSceneName);
         }
