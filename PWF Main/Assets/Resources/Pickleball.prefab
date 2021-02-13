@@ -16,7 +16,7 @@ GameObject:
   - component: {fileID: 8706011699279811535}
   m_Layer: 0
   m_Name: Pickleball
-  m_TagString: Untagged
+  m_TagString: Pickleball
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
