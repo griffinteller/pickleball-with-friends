@@ -1,4 +1,6 @@
-﻿using ExitGames.Client.Photon;
+﻿using System;
+using System.Collections.Generic;
+using ExitGames.Client.Photon;
 using Photon.Pun;
 using Photon.Realtime;
 using UnityEngine;
@@ -10,18 +12,34 @@ namespace Player.Networking
         private bool _loaded;
         private bool _masterClient;
 
-        public int playerNum;
+        public int thisPlayerNum;
+        public float pickleballOwnershipTransferZ = 0;
+        public Vector3 pickleballStartingPos;
+        
+        public Dictionary<int, int> ActorNumberByPlayerNum = new Dictionary<int, int>();
+
+        public void OnEnable()
+        {
+            PhotonNetwork.AddCallbackTarget(this);
+        }
+
+        public void OnDisable()
+        {
+            PhotonNetwork.RemoveCallbackTarget(this);
+        }
 
         public void Start()
         {
             _masterClient = PhotonNetwork.IsMasterClient;
-            playerNum = _masterClient ? 1 : 2;
+            thisPlayerNum = _masterClient ? 1 : 2;
+            ActorNumberByPlayerNum[thisPlayerNum] = PhotonNetwork.LocalPlayer.ActorNumber;
+            ActorNumberByPlayerNum[thisPlayerNum == 1 ? 2 : 1] = PhotonNetwork.PlayerListOthers[0].ActorNumber;
 
-            Hashtable settings = new Hashtable
+            Hashtable properties = new Hashtable
             {
-                {"inMatch", true}
+                [PlayerCustomProperties.InMatch] = true
             };
-            PhotonNetwork.LocalPlayer.SetCustomProperties(settings);
+            PhotonNetwork.LocalPlayer.SetCustomProperties(properties);
         }
 
         public void Update()
@@ -34,7 +52,8 @@ namespace Player.Networking
                 foreach (Photon.Realtime.Player player in PhotonNetwork.PlayerList)
                     if (!player.CustomProperties.ContainsKey("inMatch"))
                         return;
-
+                
+                _loaded = true;
                 RaiseEventOptions options = new RaiseEventOptions
                 {
                     Receivers = ReceiverGroup.All
@@ -62,7 +81,13 @@ namespace Player.Networking
 
         private void OnLoaded()
         {
+            Debug.Log("Loaded into match");
             _loaded = true;
+
+            if (!_masterClient)
+                return;
+
+            PhotonNetwork.Instantiate("Pickleball", pickleballStartingPos, Quaternion.identity);
         }
     }
 }

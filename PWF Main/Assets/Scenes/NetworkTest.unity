@@ -246,7 +246,7 @@ MeshCollider:
   m_IsTrigger: 0
   m_Enabled: 1
   serializedVersion: 4
-  m_Convex: 0
+  m_Convex: 1
   m_CookingOptions: 30
   m_Mesh: {fileID: 10210, guid: 0000000000000000e000000000000000, type: 0}
 --- !u!23 &621991416
@@ -438,4 +438,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 725ad9a6d1da4c3cbd4c8266203ca192, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  playerNum: 0
+  thisPlayerNum: 0
+  pickleballOwnershipTransferZ: 0
+  pickleballStartingPos: {x: 0, y: 2, z: -5}
