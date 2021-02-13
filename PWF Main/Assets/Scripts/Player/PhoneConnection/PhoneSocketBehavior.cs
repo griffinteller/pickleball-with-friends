@@ -16,15 +16,15 @@ namespace Player.PhoneConnection
 
         private static Quaternion ByteArrayToQuaternion(byte[] data)
         {
-            Quaternion q = new Quaternion
+            Quaternion q = new Quaternion // out of order to fix orientation
             {
                 x = BitConverter.ToSingle(data, 0),
-                y = BitConverter.ToSingle(data, 4),
-                z = BitConverter.ToSingle(data, 8),
+                z = BitConverter.ToSingle(data, 4),
+                y = BitConverter.ToSingle(data, 8),
                 w = BitConverter.ToSingle(data, 12)
             };
 
-            return q;
+            return Quaternion.Inverse(q);
         }
         
     }

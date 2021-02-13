@@ -34,7 +34,7 @@ namespace Player
         
         private static Quaternion GyroToUnity(Quaternion q)
         {
-            return new Quaternion(q.x, q.y, -q.z, -q.w);
+            return new Quaternion(q.x, q.y, q.z, q.w);
         }
     }
 }
