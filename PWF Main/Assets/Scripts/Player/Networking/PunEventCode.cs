@@ -2,6 +2,7 @@
 {
     public enum PunEventCode : byte
     {
-        LoadedScene = 1
+        LoadedScene = 1,
+        PhonesConnected,
     }
 }
