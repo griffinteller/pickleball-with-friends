@@ -1,16 +1,28 @@
 using UnityEngine;
+using WebSocketSharp;
 
-public class GyroscopeSocketClient : MonoBehaviour
+namespace Player
 {
-    // Start is called before the first frame update
-    void Start()
+    public class GyroscopeSocketClient : MonoBehaviour
     {
+        private WebSocket _socket;
+        private ConnectionStatus _connectionStatus;
         
+        public void Connect()
+        {
+            if (_connectionStatus != ConnectionStatus.Disconnected)
+                return;
+
+            _socket = new WebSocket("ws://10.0.0.37/pwfsocket");
+            _socket.Connect();
+            _socket.Send("Hello!");
+        }
     }
 
-    // Update is called once per frame
-    void Update()
+    public enum ConnectionStatus
     {
-        
+        Disconnected,
+        Connecting,
+        Connected
     }
 }
