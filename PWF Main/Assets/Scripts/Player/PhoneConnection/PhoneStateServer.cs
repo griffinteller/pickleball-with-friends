@@ -9,19 +9,19 @@ namespace Player
     {
         public static Quaternion attitudeExposed;
             
-        public Vector3 attitudeEulers;
+        public Quaternion attitude;
         
         private WebSocketServer _server;
         public void Start()
         {
             _server = new WebSocketServer(80);
-            _server.AddWebSocketService<PhoneSocketServer>("/pwfsocket");
+            _server.AddWebSocketService<PhoneSocketBehavior>("/pwfsocket");
             _server.Start();
         }
 
         public void Update()
         {
-            attitudeEulers = attitudeExposed.eulerAngles;
+            attitude = attitudeExposed;
         }
 
         public void OnDisable()

@@ -5,7 +5,7 @@ using WebSocketSharp.Server;
 
 namespace Player
 {
-    public class PhoneSocketServer : WebSocketBehavior
+    public class PhoneSocketBehavior : WebSocketBehavior
     {
 
         protected override void OnMessage(MessageEventArgs e)
