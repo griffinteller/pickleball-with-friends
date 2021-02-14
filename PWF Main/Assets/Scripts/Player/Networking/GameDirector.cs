@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using ExitGames.Client.Photon;
 using Photon.Pun;
 using Photon.Realtime;
+using Player.Mechanics;
 using TMPro;
 using UnityEngine;
 
@@ -12,7 +13,6 @@ namespace Player.Networking
     {
         Loading,
         PhonesConnecting,
-        WaitingForServe,
         Serving,
         Point,
         WaitingForRespawn
@@ -21,12 +21,17 @@ namespace Player.Networking
     {
         private GameState _gameState;
         private bool _masterClient;
+        private PlayerMovement _thisPlayerMovement;
 
         public int thisPlayerNum;
         public float pickleballOwnershipTransferZ = 0;
-        public Vector3 pickleballStartingPos;
+        public Vector3 playerOneStartingPos;
+        public Vector3 playerTwoStartingPos;
         public float respawnDelay;
         public TMP_Text messageText;
+        public int serverNum = 1;
+        public Vector3 playerLocalServingPos;
+        public float tossMomentum;
         
         public Dictionary<int, int> ActorNumberByPlayerNum = new Dictionary<int, int>();
 
@@ -49,7 +54,7 @@ namespace Player.Networking
 
             Hashtable properties = new Hashtable
             {
-                [PlayerCustomProperties.InMatch] = true
+                [PlayerProps.InMatch] = true
             };
             PhotonNetwork.LocalPlayer.SetCustomProperties(properties);
         }
@@ -64,12 +69,13 @@ namespace Player.Networking
                     break;
                 
                 case GameState.PhonesConnecting:
+
+                    PhonesConnectingUpdate();
                     break;
-                
-                case GameState.WaitingForServe:
-                    break;
-                
+
                 case GameState.Serving:
+                    
+                    ServingUpdate();
                     break;
                 
                 case GameState.Point:
@@ -83,13 +89,53 @@ namespace Player.Networking
             }
         }
 
+        private void ServingUpdate()
+        {
+            if (thisPlayerNum != serverNum)
+                return;
+
+            if (Input.GetKeyUp(KeyCode.Space))
+                Serve();
+        }
+
+        private void Serve()
+        {
+            GameObject pickleball = PhotonNetwork.Instantiate(
+                "Pickleball",
+                _thisPlayerMovement.transform.TransformPoint(playerLocalServingPos),
+                Quaternion.identity);
+            
+            pickleball.GetComponent<Rigidbody>().AddForce(Vector3.up * tossMomentum);
+        }
+
+        private void PhonesConnectingUpdate()
+        {
+            if (!_masterClient)
+                return;
+
+            foreach (Photon.Realtime.Player player in PhotonNetwork.PlayerList)
+                if (!player.CustomProperties.ContainsKey(PlayerProps.PhoneConnected) 
+                    || !(bool) player.CustomProperties[PlayerProps.PhoneConnected])
+                    return;
+
+            _gameState = GameState.Serving;
+            RaiseEventOptions options = new RaiseEventOptions
+            {
+                Receivers = ReceiverGroup.All
+            };
+            PhotonNetwork.RaiseEvent(
+                (byte) PunEventCode.PhonesConnected,
+                null, options,
+                SendOptions.SendReliable);
+        }
+
         public void LoadingUpdate()
         {
             if (!_masterClient)
                 return;
 
             foreach (Photon.Realtime.Player player in PhotonNetwork.PlayerList)
-                if (!player.CustomProperties.ContainsKey("inMatch"))
+                if (!player.CustomProperties.ContainsKey("inMatch") || !(bool) player.CustomProperties["inMatch"])
                     return;
 
             _gameState = GameState.PhonesConnecting;
@@ -111,21 +157,33 @@ namespace Player.Networking
 
                     OnLoaded();
                     break;
+                
+                case (byte) PunEventCode.PhonesConnected:
+
+                    OnPhonesConnected();
+                    break;
 
                 default:
                     break;
             }
         }
 
+        private void OnPhonesConnected()
+        {
+            Debug.Log("Phones Connected");
+            _gameState = GameState.Serving;
+        }
+
         private void OnLoaded()
         {
             Debug.Log("Loaded into match");
+            messageText.text = "Waiting for phone connections...";
             _gameState = GameState.PhonesConnecting;
 
-            if (!_masterClient)
-                return;
-
-            PhotonNetwork.Instantiate("Pickleball", pickleballStartingPos, Quaternion.identity);
+            Vector3 startingPos = thisPlayerNum == 1 ? playerOneStartingPos : playerTwoStartingPos;
+            GameObject player = PhotonNetwork.Instantiate("Player", startingPos, Quaternion.identity);
+            _thisPlayerMovement = player.GetComponent<PlayerMovement>();
+            _thisPlayerMovement.GoToServingPos();
         }
     }
 }

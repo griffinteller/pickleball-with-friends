@@ -9,14 +9,25 @@ namespace Player.Mechanics
         private Rigidbody _rigidbody;
         private Vector3 _lastPos;
         private Quaternion _lastRot;
-        private Vector3 _localCOM;
 
-        public float speed = 1;
+        public GameObject paddleObj;
         public float elasticity = 0.05f;
         
         [Header("Info, editing does nothing")]
         public Vector3 linearVelocity;
         public Vector3 angularVelocity;
+
+        public float PivotRadius
+        {
+            get => paddleObj.transform.position.z;
+            set
+            {
+                Transform t = paddleObj.transform;
+                Vector3 pos = t.localPosition;
+                pos.z = value;
+                t.localPosition = pos;
+            }
+        }
 
         public void OnCollisionEnter(Collision other)
         {
@@ -49,17 +60,12 @@ namespace Player.Mechanics
 
             linearVelocity = (nowPos - _lastPos) / Time.fixedDeltaTime;
 
-            float angle;
-            Vector3 axis;
-            (Quaternion.Inverse(_lastRot) * nowRot).ToAngleAxis(out angle, out axis);
+            (Quaternion.Inverse(_lastRot) * nowRot).ToAngleAxis(out float angle, out Vector3 axis);
 
             angularVelocity = Mathf.Deg2Rad * angle / Time.fixedDeltaTime * axis;
 
             _lastPos = nowPos;
             _lastRot = nowRot;
-            
-            if (Input.GetKey(KeyCode.A))
-                _rigidbody.MoveRotation(Quaternion.Euler(0, speed * Time.deltaTime, 0) * _rigidbody.rotation);
         }
 
         public Vector3 GetLocalPointVelocity(Vector3 localPoint)

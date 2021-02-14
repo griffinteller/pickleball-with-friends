@@ -37,19 +37,5 @@ namespace Player.Mechanics
             int newOwnerActorNumber = _gameDirector.ActorNumberByPlayerNum[correctOwnerNum];
             photonView.TransferOwnership(PhotonNetwork.CurrentRoom.GetPlayer(newOwnerActorNumber));
         }
-
-        public void Update()
-        {
-            if (!photonView.IsMine)
-                return;
-            
-            KeyCheck();
-        }
-
-        private void KeyCheck()
-        {
-            if (Input.GetKeyUp(KeyCode.Space))
-                _rigidbody.AddForce(clickDirection * clickForce, ForceMode.Impulse);
-        }
     }
 }

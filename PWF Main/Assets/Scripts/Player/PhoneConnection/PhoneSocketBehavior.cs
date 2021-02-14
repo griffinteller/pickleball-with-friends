@@ -1,4 +1,7 @@
 ﻿using System;
+using ExitGames.Client.Photon;
+using Photon.Pun;
+using Player.Networking;
 using UnityEngine;
 using WebSocketSharp;
 using WebSocketSharp.Server;
@@ -14,6 +17,11 @@ namespace Player.PhoneConnection
             PhoneStateServer.attitudeExposed = ByteArrayToQuaternion(e.RawData);
         }
 
+        protected override void OnOpen()
+        {
+            PhotonNetwork.LocalPlayer.SetCustomProperties(new Hashtable {[PlayerProps.PhoneConnected] = true});
+        }
+
         private static Quaternion ByteArrayToQuaternion(byte[] data)
         {
             Quaternion q = new Quaternion // out of order to fix orientation
@@ -24,7 +32,7 @@ namespace Player.PhoneConnection
                 w = BitConverter.ToSingle(data, 12)
             };
 
-            return Quaternion.Inverse(q);
+            return Quaternion.Inverse(q); // whatever, it works
         }
         
     }
